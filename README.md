@@ -1,36 +1,127 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Form Builder
 
-## Getting Started
+Form Builder is a web application for creating, managing, and filling dynamic forms. It features an admin panel for form CRUD operations, a form editor with preview and sidebar settings, and a public section for viewing and submitting forms. Forms are persisted in a PostgreSQL database using Drizzle ORM. The application is built with Next.js and TypeScript, and includes optional AI integration for field generation via chat.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Admin Panel (Private Zone, Protected by Authentication)
+- **CRUD for Forms**:
+    - Create, edit, and delete forms.
+    - Each form consists of fields with the following types:
+        - **text**: Single-line text field.
+            - Options: `label`, `placeholder`, `required`, `minLength`, `maxLength`.
+        - **number**: Numeric single-line field.
+            - Options: `label`, `placeholder`, `required`, `min`, `max`, `step`.
+        - **textarea**: Multi-line text field.
+            - Options: `label`, `placeholder`, `required`, `minLength`, `maxLength`, `rows`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Form Editor**:
+    - Screen for creating/editing forms with a live preview.
+    - Clicking on a field opens a sidebar for configuring its settings.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Database Storage**:
+    - Form structures are saved to the database via Drizzle ORM.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Public Section
+- **Main Page**:
+    - Displays a list of available (published) forms.
 
-## Learn More
+- **Form Filling**:
+    - Users can open a published form and fill it out.
+    - After submission, a modal window displays the entered data for confirmation.
 
-To learn more about Next.js, take a look at the following resources:
+### Bonus Feature
+- Integrate an **AI Agent** (e.g., using LangChain.js or Grok API) to assist in creating or editing fields via chat.
+    - Example: User inputs "Add a required phone field" → AI generates the appropriate field configuration.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech Stack
+- **Main Language**: TypeScript (JavaScript)
+- **Framework**: Next.js
+- **Validation Library**: Zod
+- **ORM**: Drizzle ORM
+- **Database**: PostgreSQL
+- **UI Library**: Tailwind CSS
+- **API Protocol**: GraphQL (via Apollo Client/Server)
+- **Code Quality Tools**: ESLint
+- **Package Manager**: PNPM
+- **Module Bundler**: Webpack (integrated with Next.js)
+- **Environment**: Docker Compose (for database setup)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Prerequisites
+- Node.js (v18 or higher)
+- PNPM
+- Docker (for PostgreSQL via Docker Compose)
+- PostgreSQL (if not using Docker)
 
-## Deploy on Vercel
+## Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. **Clone the Repository**:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+``
+git clone <repository-url>
+cd form-builder
+``
+2. **Install Dependencies**:
+   
+``
+pnpm install
+``
+
+3. **Set Up Environment Variables**:
+   Create a `.env` file in the root directory with the following content:
+````dotenv
+DATABASE_URL=postgres://postgres:root@localhost:5432/formbuilder
+NEXTAUTH_SECRET=your-secret-key-here-generate-with-openssl-rand-base64-32
+NEXTAUTH_URL=http://localhost:3000
+NEXT_PUBLIC_GROQ_API_KEY=use-your-grok-token
+````
+
+- `DATABASE_URL`: PostgreSQL connection string.
+- `NEXTAUTH_SECRET`: Secret for authentication (generate a secure one for production).
+- `NEXTAUTH_URL`: Base URL of the application.
+- `NEXT_PUBLIC_GROQ_API_KEY`: API key for Groq (used for AI features; optional for bonus task).
+
+4. **Set Up the Database**:
+
+``docker-compose up -d
+``
+- Start the database:
+
+``pnpm drizzle-kit generate && pnpm drizzle-kit migrate
+``
+
+or
+
+``pnpm run start-base``
+
+## Usage
+
+1. Start the development server:
+``pnpm dev
+``
+
+2. Access the app:
+- Public: `http://localhost:3000` (main page with form list).
+- Auth: `http://localhost:3000/auth/signin` (authentication page).
+- Admin: `http://localhost:3000/admin/forms` (requires authentication).
+
+3. **Authentication**:
+- Sign in via NextAuth (configure providers as needed, e.g., credentials or OAuth).
+
+4. **AI Integration (Bonus)**:
+- Use the chat interface in the form editor to interact with the AI agent.
+- Example prompt: "Add a required email field with placeholder 'Enter your email'".
+
+## Project Structure
+- `src/app`: Next.js pages and API routes.
+- `src/components`: React components (e.g., FieldRenderer, FormEditor).
+- `src/lib/db`: Drizzle ORM schemas and database setup.
+- `src/lib/types`: TypeScript definitions (e.g., formTypes.ts).
+- `src/lib/db/schemas`: Zod schemas for validation (e.g., formSchema.ts, fieldSchemas.ts).
+- `src/lib/hooks`: Custom hooks (e.g., useCreateFormHook.ts).
+
+## Contributing
+Contributions are welcome! Fork the repo, create a branch, and submit a pull request.
+
+## License
+MIT License.
